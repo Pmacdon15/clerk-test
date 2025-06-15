@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
     // You need to specify which organization to update
     // This example assumes you have the organization ID from the webhook data
-    const orgId = sessionClaims?.org_id;
+    const orgId = sessionClaims?.o?.id;
     console.log(sessionClaims)
     console.log("org id: ", orgId)
     if (orgId) {
