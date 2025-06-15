@@ -23,7 +23,7 @@ export default async function Home() {
       {/* <CreateOrganization /> */}
       {/* <PricingTable routing="hash"/> */}
       {/* <UserProfile routing="hash"/>  */}
-      <ChangeOrgSize  />
+      {/* <ChangeOrgSize  /> */}
       {/* <OrganizationProfile  routing="hash"/> */}
     </div>
   );
