@@ -1,45 +1,39 @@
 import { verifyWebhook } from '@clerk/nextjs/webhooks'
 import { NextRequest } from 'next/server'
-import { auth, clerkClient } from '@clerk/nextjs/server'
-
-interface SessionClaims {
-  orgId?: string;
-  o?: {
-    id: string;
-  };
-}
+import { clerkClient } from '@clerk/nextjs/server'
 
 export async function POST(req: NextRequest) {
   try {
-    const { sessionClaims } = await auth()
+    const evt = await verifyWebhook(req, {
+      signingSecret: process.env.CLERK_WEBHOOK_SIGNING_SECRET,
+    })
 
-    if (!sessionClaims) {
-      console.error('No session claims found')
-      return new Response('No session claims found', { status: 400 })
-    }
-
-    const evt = await verifyWebhook(req)
-
-    // Do something with payload
-    // For this guide, log payload to console
-    const { id } = evt.data
-    const eventType = evt.type
-    console.log(`Received webhook with ID ${id} and event type of ${eventType}`)
+    console.log(`Received webhook with event type: ${evt.type}`)
     console.log('Webhook payload:', evt.data)
 
-    // You need to specify which organization to update
-    // Define interface for session claims
-
-    console.log(sessionClaims)
-
-    const orgId = (sessionClaims as SessionClaims).orgId ?? (sessionClaims as SessionClaims).o?.id
-    console.log("org id: ", orgId)
-    if (!orgId) return new Response('Org size not changed', { status: 400 })
-    if (orgId) {
-      const clerk = await clerkClient();
-      await clerk.organizations.updateOrganization(orgId, {
-        maxAllowedMemberships: 10
-      })
+    if (evt.type === 'session.created') {
+      // Get user ID from session data
+      const userId = evt.data.user_id
+      
+      if (userId) {
+        const clerk = await clerkClient()
+        
+        // Fetch user's organization memberships
+        const organizationMemberships = await clerk.users.getOrganizationMembershipList({
+          userId: userId
+        })
+        
+        // Get the organization ID from the first membership (or handle multiple orgs)
+        if (organizationMemberships.data.length > 0) {
+          const orgId = organizationMemberships.data[0].organization.id
+          console.log('Organization ID:', orgId)
+          
+          // Now you can update the organization
+          await clerk.organizations.updateOrganization(orgId, {
+            maxAllowedMemberships: 10
+          })
+        }
+      }
     }
 
     return new Response('Webhook received', { status: 200 })
