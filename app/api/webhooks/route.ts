@@ -2,10 +2,15 @@ import { verifyWebhook } from '@clerk/nextjs/webhooks'
 import { NextRequest } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 
-
 export async function POST(req: NextRequest) {
   try {
     const { sessionClaims } = await auth()
+    
+    if (!sessionClaims) {
+      console.error('No session claims found')
+      return new Response('No session claims found', { status: 400 })
+    }
+
     const evt = await verifyWebhook(req)
 
     // Do something with payload
@@ -18,8 +23,8 @@ export async function POST(req: NextRequest) {
     // You need to specify which organization to update
     // Define interface for session claims
 
-    const orgId = sessionClaims?.orgId as string
     console.log(sessionClaims)
+    const orgId = sessionClaims.orgId ?? sessionClaims.o?.id
     console.log("org id: ", orgId)
     if (!orgId) return new Response('Org size not changed', { status: 400 })
     if (orgId) {
