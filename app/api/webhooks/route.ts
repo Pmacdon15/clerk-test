@@ -1,9 +1,10 @@
 import { verifyWebhook } from '@clerk/nextjs/webhooks'
 import { NextRequest } from 'next/server'
-import { clerkClient } from '@clerk/nextjs/server'
+import { auth, clerkClient } from '@clerk/nextjs/server'
 
 export async function POST(req: NextRequest) {
   try {
+    const { sessionClaims } = await auth()
     const evt = await verifyWebhook(req)
 
     // Do something with payload
@@ -15,10 +16,11 @@ export async function POST(req: NextRequest) {
 
     // You need to specify which organization to update
     // This example assumes you have the organization ID from the webhook data
-    if (evt.data.id) {
+    const orgId = evt.data.id || sessionClaims?.org_id;
+    if (orgId) {
       const clerk = await clerkClient();
-      await clerk.organizations.updateOrganization(evt.data.id, { 
-        maxAllowedMemberships: 10 
+      await clerk.organizations.updateOrganization(orgId, {
+        maxAllowedMemberships: 10
       })
     }
 

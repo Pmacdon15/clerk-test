@@ -1,4 +1,5 @@
 // import { OrganizationProfile } from "@clerk/nextjs";
+import ChangeOrgSize from "@/components/ui/change-org-size";
 import { auth, currentUser } from "@clerk/nextjs/server";
 // import Image from "next/image";
 
@@ -22,7 +23,7 @@ export default async function Home() {
       {/* <CreateOrganization /> */}
       {/* <PricingTable routing="hash"/> */}
       {/* <UserProfile routing="hash"/>  */}
-
+      <ChangeOrgSize  />
       {/* <OrganizationProfile  routing="hash"/> */}
     </div>
   );
