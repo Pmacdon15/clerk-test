@@ -1,11 +1,7 @@
 import { verifyWebhook } from '@clerk/nextjs/webhooks'
 import { NextRequest } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
- interface SessionClaims {
-      o?: {
-        id: string;
-      };
-    }
+
     
 export async function POST(req: NextRequest) {
   try {
@@ -22,7 +18,7 @@ export async function POST(req: NextRequest) {
     // You need to specify which organization to update
     // Define interface for session claims
    
-    const orgId = sessionClaims?.o?.id ;
+    const orgId = sessionClaims?.orgId
     console.log(sessionClaims)
     console.log("org id: ", orgId)
     if (orgId) {
