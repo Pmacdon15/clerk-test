@@ -1,10 +1,15 @@
 import { verifyWebhook } from '@clerk/nextjs/webhooks'
 import { NextRequest } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
-
+ interface SessionClaims {
+      o?: {
+        id: string;
+      };
+    }
+    
 export async function POST(req: NextRequest) {
   try {
-    const { sessionClaims } = await auth()
+    const { sessionClaims } = (await auth()) as { sessionClaims: SessionClaims }
     const evt = await verifyWebhook(req)
 
     // Do something with payload
@@ -15,8 +20,9 @@ export async function POST(req: NextRequest) {
     console.log('Webhook payload:', evt.data)
 
     // You need to specify which organization to update
-    // This example assumes you have the organization ID from the webhook data
-    const orgId = sessionClaims?.o?.id;
+    // Define interface for session claims
+   
+    const orgId = sessionClaims?.o?.id ;
     console.log(sessionClaims)
     console.log("org id: ", orgId)
     if (orgId) {
