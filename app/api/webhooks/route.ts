@@ -2,10 +2,17 @@ import { verifyWebhook } from '@clerk/nextjs/webhooks'
 import { NextRequest } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 
+interface SessionClaims {
+  orgId?: string;
+  o?: {
+    id: string;
+  };
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { sessionClaims } = await auth()
-    
+
     if (!sessionClaims) {
       console.error('No session claims found')
       return new Response('No session claims found', { status: 400 })
@@ -24,7 +31,8 @@ export async function POST(req: NextRequest) {
     // Define interface for session claims
 
     console.log(sessionClaims)
-    const orgId = sessionClaims.orgId ?? sessionClaims.o?.id
+
+    const orgId = (sessionClaims as SessionClaims).orgId ?? (sessionClaims as SessionClaims).o?.id
     console.log("org id: ", orgId)
     if (!orgId) return new Response('Org size not changed', { status: 400 })
     if (orgId) {
