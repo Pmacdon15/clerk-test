@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
     // You need to specify which organization to update
     // This example assumes you have the organization ID from the webhook data
-    if (evt.type === 'organization.created' || evt.type === 'organization.updated') {
+    if (evt.data.id) {
       const clerk = await clerkClient();
       await clerk.organizations.updateOrganization(evt.data.id, { 
         maxAllowedMemberships: 10 
